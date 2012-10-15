@@ -31,6 +31,25 @@ Users = [
 ]
 ```
 
+### Define a schema
+
+We'll be able to make directives such that "Users MUST be a LIST and its members MUST be an OBJECT containing ONLY and ALL properties [ email( e_mail_addr ), name( string ), pass( string ) ]
+
+### Data types
+
+When being represented by JSON anything can be reduced down to a hash, list, bool, string, or number.  (and null if allowed).
+
+If you need a table that works like a traditional relational database, then you can define a list that contains objects with required properties, and set data types on them, if so desired.  If data types are not set, then then any type of data will be fair game.
+
+More specific data types may exist, and will only be used internally for validation,indexing,constraints,efficiency etc.  Such as Money (would reduce to number), uuid (would reduce to string, and could be auto generated).
+
+Just because you're using nosql doesn't mean you need to code all your data logic into your business logic!
+
+
+### Foreign Keys
+
+Yep, we'll have 'em!
+
 ## When?
 
 Not yet.  Hopefully by 2015.
