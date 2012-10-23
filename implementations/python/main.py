@@ -11,6 +11,12 @@ class excProcedureNotFound(excCosmicDB):
 class excPathType(excCosmicDB):
 	pass
 
+class excNodeNotFound(excCosmicDB):
+	pass
+
+class excNodeType(excCosmicDB):
+	pass
+
 def parsePath(path):
 	if (type(path)==str):
 		return path.split('/')
@@ -61,29 +67,45 @@ class NodeMemory(dict):
 	def __init__(self):
 		self = {}
 
-	def set(self,attr,val):
+	def set(self,path,val):
 
-		# Are we the last attr in the path? set the value.
-		if (len(attr)==1):
-			self[attr[0]] = val
+		# Are we the last path in the path? set the value.
+		if (len(path)==1):
+			self[path[0]] = val
 
 		# Do recursivey things
-		elif (len(attr)>1):
+		elif (len(path)>1):
 
 			# Is it already an NodeMemory?
-			if (self.has_key(attr[0]) and (isinstance(self[attr[0]], NodeMemory))):
-				self[attr[0]].set(attr[1:], val)
+			if (self.has_key(path[0]) and (isinstance(self[path[0]], NodeMemory))):
+				self[path[0]].set(path[1:], val)
 
-			# The path attribute needs to be created (or overwritten.  We need to trust our base class that it's okay.)
+			# The path pathibute needs to be created (or overwritten.  We need to trust our base class that it's okay.)
 			else:
-				self[attr[0]] = NodeMemory()
-				self[attr[0]].set(attr[1:], val)
+				self[path[0]] = NodeMemory()
+				self[path[0]].set(path[1:], val)
 
 		# Baffled.
 		#else:
 		#		raise TypeError "What on earth is going on here?" # FIXME
 
-	#def get(self,attr):
+	def get(self,path=[]):
+		if (not path):
+			return self
+
+		if (self.has_key(path[0])):
+			if (len(path)==1):
+				return self[path[0]]
+			else:
+				if (not isinstance(self[path[0]], NodeMemory)):
+					raise excNodeType
+
+				return self[path[0]].get(path[1:])
+
+		raise excNodeNotFound
+
+
+
 
 class BackendMemory(BackendBase):
 
@@ -104,6 +126,11 @@ if __name__=='__main__':
 
 	backend = BackendMemory()
 
+	# Quick storage test
+	backend.storage.set(['one','two','three'],"blablabla")
+	print backend.storage.get(['one','two','three'])
+
 	import IPython
 	embedshell = IPython.Shell.IPShellEmbed(argv=["-colors", "NoColor"])
 	embedshell()
+
