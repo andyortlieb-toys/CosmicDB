@@ -150,14 +150,38 @@ class StorageMemory(StorageBase):
 
 
 
+class StorageFilesystemObtuse(StorageBase):
+	import os
+
+	def impl_init(self,*args,**kwargs):
+		self.root = None
+
+	def impl_open(self, path):
+		self.root = path
+
+	def impl_write(self,path,val):
+
+		return self.root.set(path, val)
+
+	def impl_read(self,path):
+		return self.root.get(path)
+
+
 if __name__=='__main__':
 
-	Storage = StorageMemory()
-	Storage.open()
+	#Storage = StorageMemory()
+	#Storage.open()
+
+	Storage = StorageFilesystemObtuse()
+	Storage.open('/tmp/FSObtuseTest')
 
 	# Quick storage test
-	Storage.root.set(['one','two','three'],"blablabla")
-	print Storage.root.get(['one','two','three'])
+	Storage.root.set(['Set','From','Root'],"blablabla 1")
+	print Storage.root.get(['Set','From','Root'])
+
+	Storage.write("Set/From/Backend/Driver", "Bla Bla 2")
+	print Storage.read()
+	print Storage.read('Set/From').keys()
 
 	import IPython
 	embedshell = IPython.Shell.IPShellEmbed(argv=["-colors", "NoColor"])
