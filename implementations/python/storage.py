@@ -17,9 +17,15 @@ class excNodeNotFound(excCosmicDB):
 class excNodeType(excCosmicDB):
 	pass
 
+class excSchemaViolation(excCosmicDB):
+	pass
+
 def parsePath(path):
+	if (not path):
+		return []
+
 	if (isinstance(path,str)):
-		path = path.split('/')
+		path = path.strip('/').split('/')
 
 		## TODO: Try to support some sort of escape sequence.
 		# while ('' in path):
@@ -56,19 +62,20 @@ class StorageBase:
 
 		return True
 
-	def open(self,addr):
-		self.impl_open(addr)
+	def open(self,*args, **kwargs):
+		return self.impl_open(*args, **kwargs)
 
 	def close(self):
-		self.impl_close()
+		return self.impl_close()
 
-	def read(self,path):
-
-		self.impl_read(path)
+	def read(self,path=None):
+		return self.impl_read(parsePath(path))
 
 	def write(self,path,val):
 		if (self._testSchema(path)):
-			self.impl_write(path,val)
+			return self.impl_write(parsePath(path),val)
+		else:
+			raise excSchemaViolation
 
 	def procedure(self,method,*args,**kwargs):
 		if (type(method)==str):
@@ -130,16 +137,23 @@ class NodeMemory(dict):
 class StorageMemory(StorageBase):
 
 	def impl_init(self,*args,**kwargs):
-		self.root = NodeMemory()
+		return True
+
+	def impl_open(self,*args,**kwargs):
+		self.root = self.root if hasattr(self,'root') else NodeMemory()
 
 	def impl_write(self,path,val):
-		self.node.write(path)
+		return self.root.set(path, val)
+
+	def impl_read(self,path):
+		return self.root.get(path)
 
 
 
 if __name__=='__main__':
 
 	Storage = StorageMemory()
+	Storage.open()
 
 	# Quick storage test
 	Storage.root.set(['one','two','three'],"blablabla")
