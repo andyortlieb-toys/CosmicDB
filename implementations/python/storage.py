@@ -18,15 +18,34 @@ class excNodeType(excCosmicDB):
 	pass
 
 def parsePath(path):
-	if (type(path)==str):
-		return path.split('/')
-	elif (type(path)==list):
+	if (isinstance(path,str)):
+		path = path.split('/')
+
+		## TODO: Try to support some sort of escape sequence.
+		# while ('' in path):
+		# 	idx = path.index('')
+
+		# 	# Is this item surrounded?
+		# 	if idx>0 and idx<(len(path)-1):
+		# 		# Then join them!
+		# 		path[idx] = '/'
+		# 		path[idx] = ''.join(path[idx-1:idx+2])
+		# 		path.pop(idx+1)
+		# 		path.pop(idx-1)
+
+		# 	else:
+		# 		print "woop: %s: %s ... %s"%(idx, path[idx], path)
+
+		# 		path.pop(idx)
+
+	if (isinstance(path,list)):
 		return path
-	else:
-		raise excPathType
+
+	raise excPathType
 
 
-class BackendBase:
+
+class StorageBase:
 
 	def __init__(self,*args,**kwargs):
 		self.procedures = {}
@@ -44,6 +63,7 @@ class BackendBase:
 		self.impl_close()
 
 	def read(self,path):
+
 		self.impl_read(path)
 
 	def write(self,path,val):
@@ -107,15 +127,10 @@ class NodeMemory(dict):
 
 
 
-class BackendMemory(BackendBase):
-
-
-
-
-
+class StorageMemory(StorageBase):
 
 	def impl_init(self,*args,**kwargs):
-		self.storage = NodeMemory()
+		self.root = NodeMemory()
 
 	def impl_write(self,path,val):
 		self.node.write(path)
@@ -124,11 +139,11 @@ class BackendMemory(BackendBase):
 
 if __name__=='__main__':
 
-	backend = BackendMemory()
+	Storage = StorageMemory()
 
 	# Quick storage test
-	backend.storage.set(['one','two','three'],"blablabla")
-	print backend.storage.get(['one','two','three'])
+	Storage.root.set(['one','two','three'],"blablabla")
+	print Storage.root.get(['one','two','three'])
 
 	import IPython
 	embedshell = IPython.Shell.IPShellEmbed(argv=["-colors", "NoColor"])
