@@ -133,7 +133,6 @@ class NodeMemory(dict):
 
 
 
-
 class StorageMemory(StorageBase):
 
 	def impl_init(self,*args,**kwargs):
@@ -150,8 +149,8 @@ class StorageMemory(StorageBase):
 
 
 
+import os, glob
 class StorageFilesystemObtuse(StorageBase):
-	import os
 
 	def impl_init(self,*args,**kwargs):
 		self.root = None
@@ -160,28 +159,70 @@ class StorageFilesystemObtuse(StorageBase):
 		self.root = path
 
 	def impl_write(self,path,val):
+		fullpath = os.path.abspath(os.path.join(self.root, *path))
+		dirpath = os.path.abspath(os.path.join(fullpath,'..'))
 
-		return self.root.set(path, val)
+		if ( not os.path.exists(dirpath) ):
+			os.makedirs(dirpath)
+
+		fval = open(os.path.join(fullpath),'wb+',512)
+		fval.write(val)
+		fval.close()
+		return True
 
 	def impl_read(self,path):
-		return self.root.get(path)
+		if ( isinstance(path, str)):
+			fullpath = os.path.abspath(os.path.join(self.root, path))
+		elif ( isinstance( path, list )):
+			fullpath = os.path.abspath(os.path.join(self.root, *path))
+		else:
+			raise TypeError("Unacceptable input for path.")
+
+		res = None
+
+		if not os.path.exists(fullpath):
+			raise excNodeNotFound
+
+		if os.path.isdir(fullpath):
+			res = {}
+			for fp in glob.glob(os.path.join(fullpath,'*')):
+				res[ fp.split('/')[-1] ] = self.impl_read(fp)
+
+		if os.path.isfile(fullpath):
+			res = open(fullpath,'rb+', 512).read()
+
+		return res
 
 
 if __name__=='__main__':
 
-	#Storage = StorageMemory()
-	#Storage.open()
 
-	Storage = StorageFilesystemObtuse()
-	Storage.open('/tmp/FSObtuseTest')
+	print "\n\n###############################"
+	print " StorageFilesystemObtuse Test.   "
+	print "###############################\n\n"
 
+	FSOStorage = StorageFilesystemObtuse()
+	FSOStorage.open('/tmp/FSObtuseTest')
+	FSOStorage.write("Set/From/Backend/Driver", "Bla Bla 2")
+	print FSOStorage.read()
+	print FSOStorage.read('Set/From').keys()
+
+
+	print "\n\n###############################"
+	print "       StorageMemory Test.   "
+	print "###############################\n\n"
+
+	MEMStorage = StorageMemory()
+	MEMStorage.open()
 	# Quick storage test
-	Storage.root.set(['Set','From','Root'],"blablabla 1")
-	print Storage.root.get(['Set','From','Root'])
+	MEMStorage.root.set(['Set','From','Root'],"blablabla 1")
+	print MEMStorage.root.get(['Set','From','Root'])
 
-	Storage.write("Set/From/Backend/Driver", "Bla Bla 2")
-	print Storage.read()
-	print Storage.read('Set/From').keys()
+	MEMStorage.write("Set/From/Backend/Driver", "Bla Bla 2")
+	print MEMStorage.read()
+	print MEMStorage.read('Set/From').keys()
+
+
 
 	import IPython
 	embedshell = IPython.Shell.IPShellEmbed(argv=["-colors", "NoColor"])
