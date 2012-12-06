@@ -1,4 +1,3 @@
-
 # CosmicDB
 
 A Relational Non-SQL Database
@@ -49,6 +48,10 @@ Just because you're using nosql doesn't mean you need to code all your data logi
 ### Foreign Keys
 
 Yep, we'll have 'em!
+
+## Is it really possible?
+
+Why not? LDAP does it!
 
 ## When?
 
