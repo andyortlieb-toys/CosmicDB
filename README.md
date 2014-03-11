@@ -45,51 +45,9 @@ More specific data types may exist, and will only be used internally for validat
 Just because you're using nosql doesn't mean you need to code all your data logic into your business logic!
 
 
-### Foreign Keys
+### Disclaimer
 
-Yep, we'll have 'em!
-
-## Is it really possible?
-
-Why not? LDAP does it!
-
-## When?
-
-Not yet.  Hopefully by 2015.
-
-### Deadlines?
-
-#### Bootstrapped:
-
-December 2012
-
-#### Experimental 
-
-January 2013
-
-#### Unstable
-
-March 2013
-
-#### Unstable completely changed
-
-July 2013
-
-#### Unstable completely changed again
-
-October 2013
-
-#### Testing 
-
-December 2013
-
-#### Stable RC
-
-August 2014
-
-#### Production Release
-
-December 2014
+I might never have time to work on this.  But maybe!
 
 
 
